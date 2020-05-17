@@ -7,6 +7,13 @@ import com.rustudor.Util.DataValidator;
 import com.rustudor.Util.RequestValidator;
 import com.rustudor.Util.Session;
 import com.rustudor.Util.SessionManager;
+import com.rustudor.business.mediator.Mediator;
+import com.rustudor.business.mediator.handler.GetItemsQueryHandler;
+import com.rustudor.business.mediator.handler.LoginQueryHandler;
+import com.rustudor.business.mediator.query.GetItemsQuery;
+import com.rustudor.business.mediator.query.LoginQuery;
+import com.rustudor.business.mediator.response.GetItemsQueryResponse;
+import com.rustudor.business.mediator.response.LoginQueryResponse;
 import com.rustudor.entity.Role;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +28,9 @@ import java.util.ArrayList;
 public class UserController {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
+    @Autowired
+    private Mediator mediator;
 
     @GetMapping(value = "/getRole")
     public ResponseEntity<Role> getRole(@RequestHeader("token") String token) {
@@ -34,6 +43,7 @@ public class UserController {
 
     @PostMapping(value = "/register")
     public ResponseEntity<String> register(@RequestBody FullUserDto fullUserDto) {
+        
         System.out.println(fullUserDto);
         if (!DataValidator.validateUser(fullUserDto)) {
             System.out.println("user input error");
@@ -57,7 +67,10 @@ public class UserController {
         else {
             if (!RequestValidator.validate(session))
                 return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            ArrayList<ItemDto1> itemDtos = userService.getItems(session);
+            GetItemsQuery getItemsQuery= new GetItemsQuery(session);
+            GetItemsQueryHandler getItemsQueryHandler = (GetItemsQueryHandler) mediator.<GetItemsQuery, GetItemsQueryResponse>getHandler(getItemsQuery);
+            GetItemsQueryResponse getItemsQueryResponse = getItemsQueryHandler.handle(getItemsQuery);
+            ArrayList<ItemDto1> itemDtos = getItemsQueryResponse.getItems();
             return new ResponseEntity<>(itemDtos, HttpStatus.OK);
         }
     }
@@ -115,7 +128,11 @@ public class UserController {
 
     @PostMapping(value = "/login")
     public ResponseEntity<TokenDto> login(@RequestBody LoginDto loginDto) {
-        TokenDto tokenDto = userService.login(loginDto);
+        LoginQuery loginQuery= new LoginQuery(loginDto);
+        LoginQueryHandler loginQueryHandler = (LoginQueryHandler) mediator.<LoginQuery, LoginQueryResponse>getHandler(loginQuery);
+        LoginQueryResponse loginQueryResponse = loginQueryHandler.handle(loginQuery);
+        TokenDto tokenDto = loginQueryResponse.getTokenDto();
+        //System.out.println("ok");
         System.out.println(loginDto.getUsername());
         if (tokenDto != null)
             return new ResponseEntity<>(tokenDto, HttpStatus.OK);
