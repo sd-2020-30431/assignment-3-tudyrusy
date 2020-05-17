@@ -1,9 +1,7 @@
 package com.rustudor.business.mediator;
 
-import com.rustudor.business.mediator.handler.GetItemsQueryHandler;
-import com.rustudor.business.mediator.handler.LoginQueryHandler;
-import com.rustudor.business.mediator.query.GetItemsQuery;
-import com.rustudor.business.mediator.query.LoginQuery;
+import com.rustudor.business.mediator.handler.*;
+import com.rustudor.business.mediator.query.*;
 import org.springframework.beans.*;
 import org.springframework.context.*;
 import org.springframework.stereotype.*;
@@ -21,6 +19,10 @@ public class Mediator implements ApplicationContextAware{
 
         map.put(LoginQuery.class, LoginQueryHandler.class);
         map.put(GetItemsQuery.class, GetItemsQueryHandler.class);
+        map.put(LogoutQuery.class, LogoutQueryHandler.class);
+        map.put(GetMReportQuery.class, GetMReportQueryHandler.class);
+        map.put(GetWReportQuery.class, GetWReportQueryHandler.class);
+        map.put(ViewProfileQuery.class,ViewProfileQueryHandler.class);
     }
 
     @Override

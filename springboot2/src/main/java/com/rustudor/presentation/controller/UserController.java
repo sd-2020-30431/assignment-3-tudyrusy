@@ -8,12 +8,9 @@ import com.rustudor.Util.RequestValidator;
 import com.rustudor.Util.Session;
 import com.rustudor.Util.SessionManager;
 import com.rustudor.business.mediator.Mediator;
-import com.rustudor.business.mediator.handler.GetItemsQueryHandler;
-import com.rustudor.business.mediator.handler.LoginQueryHandler;
-import com.rustudor.business.mediator.query.GetItemsQuery;
-import com.rustudor.business.mediator.query.LoginQuery;
-import com.rustudor.business.mediator.response.GetItemsQueryResponse;
-import com.rustudor.business.mediator.response.LoginQueryResponse;
+import com.rustudor.business.mediator.handler.*;
+import com.rustudor.business.mediator.query.*;
+import com.rustudor.business.mediator.response.*;
 import com.rustudor.entity.Role;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,7 +118,9 @@ public class UserController {
         if (!SessionManager.getSessionMap().containsKey(token))
             return new ResponseEntity<>("ERROR", HttpStatus.INTERNAL_SERVER_ERROR);
         else {
-            userService.logout(token);
+            LogoutQuery q = new LogoutQuery(token);
+            LogoutQueryHandler h = (LogoutQueryHandler) mediator.<LogoutQuery,LogoutQueryResponse>getHandler(q);
+            LogoutQueryResponse r = h.handle(q);
             return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
         }
     }
@@ -148,7 +147,10 @@ public class UserController {
         } else {
             if (!RequestValidator.validate(session))
                 return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            return new ResponseEntity<>(userService.getWeeklyReport(session), HttpStatus.OK);
+            GetWReportQuery q = new GetWReportQuery(session);
+            GetWReportQueryHandler h = (GetWReportQueryHandler) mediator.<GetWReportQuery, GetWReportQueryResponse>getHandler(q);
+            GetWReportQueryResponse r = h.handle(q);
+            return new ResponseEntity<>(r.getReport(), HttpStatus.OK);
         }
     }
 
@@ -160,7 +162,10 @@ public class UserController {
         } else {
             if (!RequestValidator.validate(session))
                 return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            return new ResponseEntity<>(userService.getMonthlyReport(session), HttpStatus.OK);
+            GetMReportQuery q = new GetMReportQuery(session);
+            GetMReportQueryHandler h = (GetMReportQueryHandler) mediator.<GetMReportQuery, GetMReportQueryResponse>getHandler(q);
+            GetMReportQueryResponse r = h.handle(q);
+            return new ResponseEntity<>(r.getReport(), HttpStatus.OK);
         }
     }
 
@@ -172,7 +177,10 @@ public class UserController {
         } else {
             if (!RequestValidator.validate(session))
                 return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            return new ResponseEntity<>(userService.findByUsername(session.getUsername()), HttpStatus.OK);
+            ViewProfileQuery q= new ViewProfileQuery(session.getUsername());
+            ViewProfileQueryHandler h = (ViewProfileQueryHandler) mediator.<ViewProfileQuery, ViewProfileQueryResponse>getHandler(q);
+            ViewProfileQueryResponse r = h.handle(q);
+            return new ResponseEntity<>(r.getUserDto(), HttpStatus.OK);
         }
     }
 }
