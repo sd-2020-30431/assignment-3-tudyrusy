@@ -1,7 +1,7 @@
 package com.rustudor.business.mediator.handler;
 
 
-import com.rustudor.business.Services.UserService;
+import com.rustudor.business.Services.QueryService;
 import com.rustudor.business.mediator.Handler;
 
 import com.rustudor.business.mediator.query.GetWReportQuery;
@@ -12,14 +12,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class GetWReportQueryHandler implements Handler<GetWReportQuery, GetWReportQueryResponse> {
-    private final UserService userService;
+    private final QueryService queryService;
 
     @Autowired
-    public GetWReportQueryHandler(UserService userService) {
-        this.userService = userService;
+    public GetWReportQueryHandler(QueryService queryService) {
+        this.queryService = queryService;
     }
     @Override
     public GetWReportQueryResponse handle(GetWReportQuery getWReportQuery) {
-        return new GetWReportQueryResponse(userService.getWeeklyReport(getWReportQuery.getSession()));
+        return new GetWReportQueryResponse(queryService.getWeeklyReport(getWReportQuery.getSession()));
     }
 }

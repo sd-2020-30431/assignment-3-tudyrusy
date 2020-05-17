@@ -8,6 +8,10 @@ import com.rustudor.Util.RequestValidator;
 import com.rustudor.Util.Session;
 import com.rustudor.Util.SessionManager;
 import com.rustudor.business.mediator.Mediator;
+import com.rustudor.business.mediator.comand.AddItemCommand;
+import com.rustudor.business.mediator.comand.RegisterCommand;
+import com.rustudor.business.mediator.comand.SetConsumptionCommand;
+import com.rustudor.business.mediator.comand.SetGoalCommand;
 import com.rustudor.business.mediator.handler.*;
 import com.rustudor.business.mediator.query.*;
 import com.rustudor.business.mediator.response.*;
@@ -24,8 +28,6 @@ import java.util.ArrayList;
 @RequestMapping(value = "/users")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
     @Autowired
     private Mediator mediator;
 
@@ -46,7 +48,10 @@ public class UserController {
             System.out.println("user input error");
             return new ResponseEntity<>("INVALID DATA", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        switch (userService.register(fullUserDto)) {
+        RegisterCommand c = new RegisterCommand(fullUserDto);
+        RegisterCommandHandler h = (RegisterCommandHandler) mediator.<RegisterCommand,RegisterCommandResponse>getHandler(c);
+        RegisterCommandResponse r = h.handle(c);
+        switch (r.getResponse()) {
             case 0:
                 return new ResponseEntity<>("SUCCESS : USER REGISTERED", HttpStatus.OK);
             case -1:
@@ -77,7 +82,10 @@ public class UserController {
         //validation
         if(DataValidator.validateItem(itemDto)) {
             Session session = SessionManager.getSessionMap().get(token);
-            userService.addItem(itemDto, session);
+            AddItemCommand c = new AddItemCommand(itemDto,session);
+            AddItemCommandHandler h = (AddItemCommandHandler)mediator.<AddItemCommand,AddItemCommandResponse>getHandler(c);
+            AddItemCommandResponse r = h.handle(c);
+            
             return new ResponseEntity(HttpStatus.OK);
         }
         else {
@@ -91,7 +99,10 @@ public class UserController {
         //validation
         if(DataValidator.validateGoal(goal)) {
             Session session = SessionManager.getSessionMap().get(token);
-            userService.setGoal(Integer.parseInt(goal), session);
+            SetGoalCommand c = new SetGoalCommand(Integer.parseInt(goal),session);
+            SetGoalCommandHandler h = (SetGoalCommandHandler)mediator.<SetGoalCommand,SetGoalCommandResponse>getHandler(c);
+            SetGoalCommandResponse r = h.handle(c);
+            
             return new ResponseEntity(HttpStatus.OK);
         }
         else {
@@ -104,7 +115,10 @@ public class UserController {
     public ResponseEntity setConsumption(@RequestBody ConsumptionDto consumptionDto, @RequestHeader("token") String token) {
         if(DataValidator.validateConsumptionDto(consumptionDto)) {
             Session session = SessionManager.getSessionMap().get(token);
-            userService.setConsumption(consumptionDto, session);
+            SetConsumptionCommand c = new SetConsumptionCommand(consumptionDto,session);
+            SetConsumptionCommandHandler h = (SetConsumptionCommandHandler)mediator.<SetConsumptionCommand,SetConsumptionCommandResponse>getHandler(c);
+            SetConsumptionCommandResponse r = h.handle(c);
+
             return new ResponseEntity(HttpStatus.OK);
         }
         else {

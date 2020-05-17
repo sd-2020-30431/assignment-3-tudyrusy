@@ -1,6 +1,6 @@
 package com.rustudor.business.mediator.handler;
 
-import com.rustudor.business.Services.UserService;
+import com.rustudor.business.Services.QueryService;
 import com.rustudor.business.mediator.Handler;
 import com.rustudor.business.mediator.query.LoginQuery;
 import com.rustudor.business.mediator.response.LoginQueryResponse;
@@ -9,15 +9,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LoginQueryHandler implements Handler<LoginQuery, LoginQueryResponse> {
-    private final UserService userService;
+    private final QueryService queryService;
 
     @Autowired
-    public LoginQueryHandler(UserService userService) {
-        this.userService = userService;
+    public LoginQueryHandler(QueryService queryService) {
+        this.queryService = queryService;
     }
 
     @Override
     public LoginQueryResponse handle(LoginQuery loginQuery) {
-        return new LoginQueryResponse(userService.login(loginQuery.getLoginDto()));
+        return new LoginQueryResponse(queryService.login(loginQuery.getLoginDto()));
     }
 }

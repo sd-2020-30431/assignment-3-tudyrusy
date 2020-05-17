@@ -1,6 +1,6 @@
 package com.rustudor.business.mediator.handler;
 
-import com.rustudor.business.Services.UserService;
+import com.rustudor.business.Services.QueryService;
 import com.rustudor.business.mediator.Handler;
 import com.rustudor.business.mediator.query.ViewProfileQuery;
 import com.rustudor.business.mediator.response.ViewProfileQueryResponse;
@@ -9,14 +9,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ViewProfileQueryHandler implements Handler<ViewProfileQuery, ViewProfileQueryResponse> {
-    private final UserService userService;
+    private final QueryService queryService;
 
     @Autowired
-    public ViewProfileQueryHandler(UserService userService) {
-        this.userService = userService;
+    public ViewProfileQueryHandler(QueryService queryService) {
+        this.queryService = queryService;
     }
     @Override
     public ViewProfileQueryResponse handle(ViewProfileQuery viewProfileQuery) {
-        return new ViewProfileQueryResponse(userService.findByUsername(viewProfileQuery.getUsername()));
+        return new ViewProfileQueryResponse(queryService.findByUsername(viewProfileQuery.getUsername()));
     }
 }
